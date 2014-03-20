@@ -17,6 +17,7 @@ Supported behaviour:
 * Slide box with custom HTML content
 * *Slide box with similar post (in development)*
 * *Slide boxes with previous and next posts (in development)*
+* *Links to previous and next posts (in development)*
 * *List of specified posts at the end  (in development)*
 * *List of similar posts at the end  (in development)*
 * *Widget with similar posts (in development)*
