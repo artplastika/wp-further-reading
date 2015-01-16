@@ -1,0 +1,11 @@
+#wpfr-behaviour-options {
+	margin: 0.5em 0;
+}
+
+#wpfr-behaviour-options label {
+	display:block;
+}
+
+.wpfr-options-hint {
+	color: gray;
+}
