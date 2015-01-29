@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Further Reading
-Plugin URI: http://artplastika.ru/vestnik/further-reading
+Plugin URI: http://artplastika.ru/projects/further-reading/
 Description: Display related content for further reading in most common ways to lower bounce rate of your site or blog
-Version: 5.1.30
+Version: 15.1.29
 Author: Victor Glushenkov
 License: MIT
 
@@ -88,7 +88,7 @@ class wpfurtherreading {
 			}
 			switch($behaviour) {
 				 case 'slidebox-custom': 
-					$markup = '<span id="wpfurtherreading_anchor"></span><div id="slidebox" style="right: -430px;"><h2>Читайте также</h2><a class="close">&times;</a>'. $options['slidebox-custom-html'] .'</div>';
+					$markup = '<span id="wpfr_anchor"></span><div id="wpfr_slidebox_right" class="wpfr_slidebox"><a class="close">&times;</a>'. $options['slidebox-custom-html'] .'</div>';
 					break;
 				default:
 					$markup = '';
@@ -139,7 +139,7 @@ class wpfurtherreading {
 				<?php } ?>
 				</select>
 				<div id="wpfr-behaviour-options">
-					<?php echo $this->get_options_form_markup($options['behaviour']); ?>
+					<?php echo $this->get_options_form_markup(false, $options['behaviour']); ?>
 				</div>
 				<?php submit_button(); ?>
 			</form>
@@ -148,18 +148,25 @@ class wpfurtherreading {
 	}
 	
 	function add_plugin_meta_box($post, $metabox) {
+		$defaultOptions = $this->get_options();
 		$options = $this->get_options($post->ID);
+		$isDefaultBehaviour = 'on' == $options['default_behavior'];
 		?>
+		<div id="wpfr-defaultbahaviour-container">
+			<input type="checkbox" id="wpfr-defaultbahaviour-checkbox" name="wpfurtherreading_options[default_behavior]" <?php checked($isDefaultBehaviour); ?> />
+			<label for="wpfr-defaultbahaviour-checkbox">Use default behaviour</label>
+		</div>
+		<label>Behaviour:</label>
+		<select id="wpfr-behaviour-select" name="wpfurtherreading_options[behaviour]" <?php disabled($options['default_behavior'], 'on'); ?>>
+		<?php foreach (self::$BEHAVIOURS as $key => $value) { ?>
+				<option value="<?php echo $key?>" <?php if (!in_array($key, self::$SUPPORTED_BEHAVIOURS)) echo 'disabled'; selected($options['behaviour'], $key); ?>><?php echo $value?></option>
+		<?php } ?>
+		</select>
+		<input type="hidden" id="wpfr-default-bahaviour" value="<?php echo $defaultOptions['behaviour'] ?>" />
 		<input type="hidden" name="wpfr-post-id" value="<?php echo $post->ID ?>" />
-				<label>Behaviour:</label>
-				<select id="wpfr-behaviour-select" name="wpfurtherreading_options[behaviour]">
-				<?php foreach (self::$BEHAVIOURS as $key => $value) { ?>
-						<option value="<?php echo $key?>" <?php if (!in_array($key, self::$SUPPORTED_BEHAVIOURS)) echo 'disabled'; selected($options['behaviour'], $key); ?>><?php echo $value?></option>
-				<?php } ?>
-				</select>
-				<div id="wpfr-behaviour-options">
-					<?php echo $this->get_options_form_markup($options['behaviour'], $post->ID); ?>
-				</div>
+		<div id="wpfr-behaviour-options">
+			<?php echo $this->get_options_form_markup($isDefaultBehaviour, $options['behaviour'], $post->ID); ?>
+		</div>
 		<?php
 	}
 
@@ -177,29 +184,20 @@ class wpfurtherreading {
 			$post_id = $the_post;
 		}
 		$options = $_POST['wpfurtherreading_options'];
-		if ($options) {
-			$saved_options = get_post_meta($post_id, 'wpfurtherreading_options', true);
-			if ($saved_options) {
-				foreach ($saved_options as $key => $value) {
-					if (!array_key_exists($key, $options)) {
-						$options[$key] = $saved_options[$key];
-					}
-				}
-			}
-		}
 		update_post_meta($post_id, 'wpfurtherreading_options', $options);
 	}
 
 	public function get_options_form() {
 		$postId = $_POST['postId'];
 		$behaviour = $_POST['behaviour'];
+		$isDefaultBehaviour = $_POST['isDefaultBehaviour'];
 		header( "Content-Type: text/html" );
-		echo $this->get_options_form_markup($behaviour, $postId);
+		echo $this->get_options_form_markup($isDefaultBehaviour, $behaviour, $postId);
 		exit;
 	}
 	
-	public function get_options_form_markup($behaviour, $postId = null) {
-		$options = $this->get_options($postId);
+	public function get_options_form_markup($isDefaultBehaviour, $behaviour, $postId = null) {
+		$options = $isDefaultBehaviour ? $this->get_options() : $this->get_options($postId);
 		switch($behaviour) {
 			 case 'slidebox-custom': 
 				$markup = '
@@ -213,11 +211,17 @@ class wpfurtherreading {
 	}
 	
 	public function get_options($postId = null) {
+		$defaultOptions = get_option('wpfurtherreading_options');
 		if ($postId) {
 			$options = get_post_meta($postId, 'wpfurtherreading_options', true);
 		}
 		if (!$options || is_null($options) || empty($options)) {
-			$options = get_option('wpfurtherreading_options');
+			$options = $defaultOptions;
+		}
+		if ($options['default_behavior']) {
+			foreach ($defaultOptions as $key => $value) {
+				$options[$key] = $value;
+			}
 		}
 		return $options;
 	}

@@ -3,8 +3,8 @@ Contributors: artplastika
 Tags: further reading, related content, related posts, similar posts, read further, read next, next post, navigation, references, featured, bounce rate
 Donate link: http://artplastika.github.io/wp-further-reading/index.html
 Requires at least: 3.0
-Tested up to: 4.0
-Stable tag: 5.1.30
+Tested up to: 4.1
+Stable tag: 15.1.29
 License: MIT
 License URI: http://opensource.org/licenses/MIT
 
@@ -36,5 +36,5 @@ Future plans:
 
 == Changelog ==
 
-= 5.1.30 = 
+= 15.1.29 = 
 * Slide box with custom HTML content

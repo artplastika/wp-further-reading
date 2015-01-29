@@ -3,7 +3,11 @@
 }
 
 #wpfr-behaviour-options label {
-	display:block;
+	display: block;
+}
+
+#wpfr-defaultbahaviour-container {
+	margin-bottom: 1em;
 }
 
 .wpfr-options-hint {
